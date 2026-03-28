@@ -7,6 +7,7 @@ import HomePage from "./pages/HomePage";
 import OutfitSelectorPage from "./pages/OutfitSelectorPage";
 import ProcessingPage from "./pages/ProcessingPage";
 import ResultPage from "./pages/ResultPage";
+import SalesPage from "./pages/SalesPage";
 import UploadPage from "./pages/UploadPage";
 import type { AppState, FreemiumState, ImportedProduct, Outfit } from "./types";
 
@@ -50,7 +51,6 @@ export default function App() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [recentImports, setRecentImports] =
     useState<ImportedProduct[]>(loadImports);
-  // Track which imported product triggered the current try-on (for affiliate banner)
   const [sourceProduct, setSourceProduct] = useState<ImportedProduct | null>(
     null,
   );
@@ -84,7 +84,6 @@ export default function App() {
     navigate("processing");
   };
 
-  /** Called when a user taps "Try On" on an ImportedProductCard */
   const handleImportedProductTryOn = (product: ImportedProduct) => {
     const fresh = getFreemiumState();
     if (!fresh.isPremium && fresh.triesUsed >= 3) {
@@ -93,7 +92,6 @@ export default function App() {
     }
     setSourceProduct(product);
     setSelectedOutfit(importedToOutfit(product));
-    // If no photo uploaded yet, go to upload first; otherwise go straight to processing
     if (!uploadedPhoto) {
       navigate("upload");
     } else {
@@ -182,6 +180,9 @@ export default function App() {
             onUpgrade={() => setShowPremiumModal(true)}
             sourceProduct={sourceProduct}
           />
+        )}
+        {page === "sales" && (
+          <SalesPage onBack={() => navigate("home")} onNavigate={navigate} />
         )}
       </main>
 

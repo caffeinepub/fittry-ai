@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Moon, Sparkles, Sun, Zap } from "lucide-react";
+import { Moon, ShoppingBag, Sparkles, Sun, Zap } from "lucide-react";
 import type { AppState } from "../types";
 
 interface HeaderProps {
@@ -65,6 +65,17 @@ export default function Header({
             ) : (
               <Moon className="w-4 h-4" />
             )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onNavigate("sales")}
+            className="pill text-xs px-3 border-primary/40 text-primary hover:bg-primary/10 transition-colors hidden sm:flex items-center gap-1"
+            data-ocid="header.sales_button"
+          >
+            <ShoppingBag className="w-3 h-3" />
+            Sell
           </Button>
 
           <Button

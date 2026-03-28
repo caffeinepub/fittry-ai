@@ -3,7 +3,8 @@ export type AppState =
   | "upload"
   | "outfit-selector"
   | "processing"
-  | "result";
+  | "result"
+  | "sales";
 
 export interface Outfit {
   id: string;
