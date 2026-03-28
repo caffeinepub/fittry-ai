@@ -1,0 +1,209 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.875rem;
+
+    /* Light mode */
+    --background: 0.97 0 0;
+    --foreground: 0.12 0.01 285;
+    --card: 1 0 0;
+    --card-foreground: 0.12 0.01 285;
+    --popover: 1 0 0;
+    --popover-foreground: 0.12 0.01 285;
+    --primary: 0.72 0.12 295;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.95 0.02 300;
+    --secondary-foreground: 0.25 0.05 285;
+    --muted: 0.95 0.01 285;
+    --muted-foreground: 0.55 0.02 285;
+    --accent: 0.85 0.08 5;
+    --accent-foreground: 0.12 0.01 285;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+    --border: 0.88 0.02 285;
+    --input: 0.88 0.02 285;
+    --ring: 0.72 0.12 295;
+
+    /* Custom tokens */
+    --lavender: 0.76 0.1 295;
+    --pink: 0.82 0.08 5;
+    --green-accent: 0.72 0.17 148;
+    --dark-bg: 0.12 0.008 285;
+    --dark-card: 0.17 0.008 285;
+    --dark-border: 0.22 0.008 285;
+
+    --chart-1: 0.646 0.222 41.116;
+    --chart-2: 0.6 0.118 184.704;
+    --chart-3: 0.398 0.07 227.392;
+    --chart-4: 0.828 0.189 84.429;
+    --chart-5: 0.769 0.188 70.08;
+    --sidebar: 0.985 0 0;
+    --sidebar-foreground: 0.145 0 0;
+    --sidebar-primary: 0.205 0 0;
+    --sidebar-primary-foreground: 0.985 0 0;
+    --sidebar-accent: 0.97 0 0;
+    --sidebar-accent-foreground: 0.205 0 0;
+    --sidebar-border: 0.922 0 0;
+    --sidebar-ring: 0.708 0 0;
+  }
+
+  .dark {
+    --background: 0.11 0.005 285;
+    --foreground: 0.97 0 0;
+    --card: 0.165 0.006 285;
+    --card-foreground: 0.97 0 0;
+    --popover: 0.165 0.006 285;
+    --popover-foreground: 0.97 0 0;
+    --primary: 0.76 0.1 295;
+    --primary-foreground: 0.12 0.01 285;
+    --secondary: 0.22 0.008 285;
+    --secondary-foreground: 0.97 0 0;
+    --muted: 0.22 0.008 285;
+    --muted-foreground: 0.62 0.01 285;
+    --accent: 0.82 0.08 5;
+    --accent-foreground: 0.12 0.01 285;
+    --destructive: 0.704 0.191 22.216;
+    --destructive-foreground: 0.205 0 0;
+    --border: 0.22 0.008 285;
+    --input: 0.22 0.008 285;
+    --ring: 0.76 0.1 295;
+
+    --chart-1: 0.488 0.243 264.376;
+    --chart-2: 0.696 0.17 162.48;
+    --chart-3: 0.769 0.188 70.08;
+    --chart-4: 0.627 0.265 303.9;
+    --chart-5: 0.645 0.246 16.439;
+    --sidebar: 0.165 0.006 285;
+    --sidebar-foreground: 0.97 0 0;
+    --sidebar-primary: 0.76 0.1 295;
+    --sidebar-primary-foreground: 0.97 0 0;
+    --sidebar-accent: 0.22 0.008 285;
+    --sidebar-accent-foreground: 0.97 0 0;
+    --sidebar-border: 0.22 0.008 285;
+    --sidebar-ring: 0.556 0 0;
+  }
+
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: dark;
+  }
+  html.light {
+    color-scheme: light;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: "Inter", sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-hero {
+    background: linear-gradient(
+      135deg,
+      oklch(0.76 0.1 295 / 0.4) 0%,
+      oklch(0.82 0.08 5 / 0.4) 100%
+    );
+  }
+  .gradient-lavender-pink {
+    background: linear-gradient(
+      135deg,
+      oklch(0.76 0.1 295) 0%,
+      oklch(0.82 0.08 5) 100%
+    );
+  }
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      oklch(0.76 0.1 295) 0%,
+      oklch(0.82 0.08 5) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .glass-card {
+    background: oklch(var(--card) / 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid oklch(var(--border) / 0.5);
+  }
+  .pill {
+    border-radius: 999px;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(1 0 0 / 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
