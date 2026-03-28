@@ -13,6 +13,8 @@ export interface Outfit {
   price: string;
   image: string | null;
   aiMatch?: number;
+  source?: "myntra" | "amazon" | "flipkart" | "ajio";
+  buyLink?: string;
 }
 
 export interface FreemiumState {

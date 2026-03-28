@@ -5,6 +5,10 @@ import { createActorWithConfig } from "../config";
 import { getSecretParameter } from "../utils/urlParams";
 import { useInternetIdentity } from "./useInternetIdentity";
 
+type ActorWithInit = {
+  _initializeAccessControlWithSecret: (token: string) => Promise<void>;
+};
+
 const ACTOR_QUERY_KEY = "actor";
 export function useActor() {
   const { identity } = useInternetIdentity();
@@ -27,8 +31,13 @@ export function useActor() {
 
       const actor = await createActorWithConfig(actorOptions);
       const adminToken = getSecretParameter("caffeineAdminToken") || "";
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (actor as any)._initializeAccessControlWithSecret(adminToken);
+      const actorAsInit = actor as unknown as ActorWithInit;
+      if (
+        adminToken &&
+        typeof actorAsInit._initializeAccessControlWithSecret === "function"
+      ) {
+        await actorAsInit._initializeAccessControlWithSecret(adminToken);
+      }
       return actor;
     },
     // Only refetch when identity changes

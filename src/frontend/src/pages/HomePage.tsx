@@ -41,6 +41,9 @@ const CATEGORIES_INFO = [
 
 const AVATAR_COLORS = ["#C7B6E8", "#E8B9C7", "#B6C7E8", "#E8C7B6"];
 
+const myntraOutfits = OUTFITS.filter((o) => o.source === "myntra");
+const amazonOutfits = OUTFITS.filter((o) => o.source === "amazon");
+
 interface HomePageProps {
   onNavigate: (page: AppState) => void;
   favorites: string[];
@@ -56,7 +59,7 @@ export default function HomePage({
 
   const filteredOutfits =
     activeCategory === "All"
-      ? OUTFITS
+      ? OUTFITS.filter((o) => !o.source)
       : OUTFITS.filter((o) => o.category === activeCategory);
 
   return (
@@ -153,16 +156,16 @@ export default function HomePage({
             }}
           >
             <img
-              src="/assets/generated/outfit-evening.dim_400x500.jpg"
-              alt="Evening outfit"
+              src="/assets/generated/outfit-myntra-ethnic.dim_400x500.jpg"
+              alt="Myntra outfit"
               className="w-full aspect-[4/5] object-cover rounded-xl mb-1.5"
             />
             <div className="px-1">
-              <p className="text-xs font-bold truncate">Evening Glamour</p>
+              <p className="text-xs font-bold truncate">Ethnic Kurta</p>
               <div className="flex items-center gap-1 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-accent" />
-                <span className="text-[10px] text-green-accent font-semibold">
-                  96% match
+                <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                <span className="text-[10px] text-pink-500 font-semibold">
+                  Myntra
                 </span>
               </div>
             </div>
@@ -175,19 +178,84 @@ export default function HomePage({
             }}
           >
             <img
-              src="/assets/generated/outfit-casual.dim_400x500.jpg"
-              alt="Casual outfit"
+              src="/assets/generated/outfit-amazon-casual.dim_400x500.jpg"
+              alt="Amazon outfit"
               className="w-full aspect-[4/5] object-cover rounded-xl mb-1.5"
             />
             <div className="px-1">
-              <p className="text-xs font-bold truncate">Casual Friday</p>
+              <p className="text-xs font-bold truncate">Smart Casual</p>
               <div className="flex items-center gap-1 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-accent" />
-                <span className="text-[10px] text-green-accent font-semibold">
-                  97% match
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                <span className="text-[10px] text-orange-500 font-semibold">
+                  Amazon
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Shop by Platform */}
+      <section className="px-4 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold">Shop by Platform</h2>
+          <button
+            type="button"
+            className="text-sm text-primary flex items-center gap-0.5"
+            onClick={() => onNavigate("outfit-selector")}
+            data-ocid="home.link"
+          >
+            See all <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Myntra section */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+              Myntra
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {myntraOutfits.length} outfits
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {myntraOutfits.map((outfit, i) => (
+              <OutfitCard
+                key={outfit.id}
+                outfit={outfit}
+                isFavorite={favorites.includes(outfit.id)}
+                onToggleFavorite={onToggleFavorite}
+                onSelect={() => onNavigate("upload")}
+                index={i}
+                compact
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Amazon section */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+              Amazon
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {amazonOutfits.length} outfits
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {amazonOutfits.map((outfit, i) => (
+              <OutfitCard
+                key={outfit.id}
+                outfit={outfit}
+                isFavorite={favorites.includes(outfit.id)}
+                onToggleFavorite={onToggleFavorite}
+                onSelect={() => onNavigate("upload")}
+                index={i}
+                compact
+              />
+            ))}
           </div>
         </div>
       </section>
