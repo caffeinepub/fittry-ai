@@ -8,10 +8,337 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const idlService = IDL.Service({});
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const ShoppingItem = IDL.Record({
+  'productName' : IDL.Text,
+  'currency' : IDL.Text,
+  'quantity' : IDL.Nat,
+  'priceInCents' : IDL.Nat,
+  'productDescription' : IDL.Text,
+});
+export const GenerationHistoryEntry = IDL.Record({
+  'templateId' : IDL.Text,
+  'inputPhoto' : ExternalBlob,
+  'outputVideo' : ExternalBlob,
+  'timestamp' : IDL.Int,
+});
+export const UserProfile = IDL.Record({
+  'username' : IDL.Text,
+  'isPremium' : IDL.Bool,
+  'dailyQuota' : IDL.Nat,
+  'usedQuota' : IDL.Nat,
+  'photo' : ExternalBlob,
+  'rewardCredits' : IDL.Nat,
+});
+export const VideoTemplate = IDL.Record({
+  'id' : IDL.Text,
+  'thumbnail' : ExternalBlob,
+  'preview' : ExternalBlob,
+  'name' : IDL.Text,
+  'category' : IDL.Text,
+});
+export const StripeSessionStatus = IDL.Variant({
+  'completed' : IDL.Record({
+    'userPrincipal' : IDL.Opt(IDL.Text),
+    'response' : IDL.Text,
+  }),
+  'failed' : IDL.Record({ 'error' : IDL.Text }),
+});
+export const StripeConfiguration = IDL.Record({
+  'allowedCountries' : IDL.Vec(IDL.Text),
+  'secretKey' : IDL.Text,
+});
+export const http_header = IDL.Record({
+  'value' : IDL.Text,
+  'name' : IDL.Text,
+});
+export const http_request_result = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
+});
+export const TransformationInput = IDL.Record({
+  'context' : IDL.Vec(IDL.Nat8),
+  'response' : http_request_result,
+});
+export const TransformationOutput = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
+});
+
+export const idlService = IDL.Service({
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
+      [],
+    ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'addAlternativePhoto' : IDL.Func([ExternalBlob], [], []),
+  'addGenerationToFavorites' : IDL.Func(
+      [IDL.Text, ExternalBlob, ExternalBlob],
+      [],
+      [],
+    ),
+  'addRewardCredits' : IDL.Func([IDL.Principal, IDL.Nat], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'createCheckoutSession' : IDL.Func(
+      [IDL.Vec(ShoppingItem), IDL.Text, IDL.Text],
+      [IDL.Text],
+      [],
+    ),
+  'createProfile' : IDL.Func([IDL.Text, ExternalBlob], [], []),
+  'createVideoTemplate' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, ExternalBlob, ExternalBlob],
+      [],
+      [],
+    ),
+  'fetchGenerationHistory' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(GenerationHistoryEntry)],
+      ['query'],
+    ),
+  'fetchUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'fetchVideoTemplate' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(VideoTemplate)],
+      ['query'],
+    ),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getDailyQuota' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
+  'getGenerationHistory' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(GenerationHistoryEntry)],
+      ['query'],
+    ),
+  'getStripeSessionStatus' : IDL.Func([IDL.Text], [StripeSessionStatus], []),
+  'getTemplates' : IDL.Func([], [IDL.Vec(VideoTemplate)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'hasPremium' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'setStripeConfiguration' : IDL.Func([StripeConfiguration], [], []),
+  'transform' : IDL.Func(
+      [TransformationInput],
+      [TransformationOutput],
+      ['query'],
+    ),
+  'updateProfilePhoto' : IDL.Func([ExternalBlob], [], []),
+  'upgradeToPremium' : IDL.Func([IDL.Principal], [], []),
+});
 
 export const idlInitArgs = [];
 
-export const idlFactory = ({ IDL }) => { return IDL.Service({}); };
+export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const ShoppingItem = IDL.Record({
+    'productName' : IDL.Text,
+    'currency' : IDL.Text,
+    'quantity' : IDL.Nat,
+    'priceInCents' : IDL.Nat,
+    'productDescription' : IDL.Text,
+  });
+  const GenerationHistoryEntry = IDL.Record({
+    'templateId' : IDL.Text,
+    'inputPhoto' : ExternalBlob,
+    'outputVideo' : ExternalBlob,
+    'timestamp' : IDL.Int,
+  });
+  const UserProfile = IDL.Record({
+    'username' : IDL.Text,
+    'isPremium' : IDL.Bool,
+    'dailyQuota' : IDL.Nat,
+    'usedQuota' : IDL.Nat,
+    'photo' : ExternalBlob,
+    'rewardCredits' : IDL.Nat,
+  });
+  const VideoTemplate = IDL.Record({
+    'id' : IDL.Text,
+    'thumbnail' : ExternalBlob,
+    'preview' : ExternalBlob,
+    'name' : IDL.Text,
+    'category' : IDL.Text,
+  });
+  const StripeSessionStatus = IDL.Variant({
+    'completed' : IDL.Record({
+      'userPrincipal' : IDL.Opt(IDL.Text),
+      'response' : IDL.Text,
+    }),
+    'failed' : IDL.Record({ 'error' : IDL.Text }),
+  });
+  const StripeConfiguration = IDL.Record({
+    'allowedCountries' : IDL.Vec(IDL.Text),
+    'secretKey' : IDL.Text,
+  });
+  const http_header = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const http_request_result = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
+  });
+  const TransformationInput = IDL.Record({
+    'context' : IDL.Vec(IDL.Nat8),
+    'response' : http_request_result,
+  });
+  const TransformationOutput = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
+  });
+  
+  return IDL.Service({
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
+        [],
+      ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'addAlternativePhoto' : IDL.Func([ExternalBlob], [], []),
+    'addGenerationToFavorites' : IDL.Func(
+        [IDL.Text, ExternalBlob, ExternalBlob],
+        [],
+        [],
+      ),
+    'addRewardCredits' : IDL.Func([IDL.Principal, IDL.Nat], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'createCheckoutSession' : IDL.Func(
+        [IDL.Vec(ShoppingItem), IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
+    'createProfile' : IDL.Func([IDL.Text, ExternalBlob], [], []),
+    'createVideoTemplate' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, ExternalBlob, ExternalBlob],
+        [],
+        [],
+      ),
+    'fetchGenerationHistory' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(GenerationHistoryEntry)],
+        ['query'],
+      ),
+    'fetchUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'fetchVideoTemplate' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(VideoTemplate)],
+        ['query'],
+      ),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getDailyQuota' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
+    'getGenerationHistory' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(GenerationHistoryEntry)],
+        ['query'],
+      ),
+    'getStripeSessionStatus' : IDL.Func([IDL.Text], [StripeSessionStatus], []),
+    'getTemplates' : IDL.Func([], [IDL.Vec(VideoTemplate)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'hasPremium' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'setStripeConfiguration' : IDL.Func([StripeConfiguration], [], []),
+    'transform' : IDL.Func(
+        [TransformationInput],
+        [TransformationOutput],
+        ['query'],
+      ),
+    'updateProfilePhoto' : IDL.Func([ExternalBlob], [], []),
+    'upgradeToPremium' : IDL.Func([IDL.Principal], [], []),
+  });
+};
 
 export const init = ({ IDL }) => { return []; };

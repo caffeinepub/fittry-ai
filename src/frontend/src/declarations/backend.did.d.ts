@@ -10,7 +10,130 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface _SERVICE {}
+export type ExternalBlob = Uint8Array;
+export interface GenerationHistoryEntry {
+  'templateId' : string,
+  'inputPhoto' : ExternalBlob,
+  'outputVideo' : ExternalBlob,
+  'timestamp' : bigint,
+}
+export interface ShoppingItem {
+  'productName' : string,
+  'currency' : string,
+  'quantity' : bigint,
+  'priceInCents' : bigint,
+  'productDescription' : string,
+}
+export interface StripeConfiguration {
+  'allowedCountries' : Array<string>,
+  'secretKey' : string,
+}
+export type StripeSessionStatus = {
+    'completed' : { 'userPrincipal' : [] | [string], 'response' : string }
+  } |
+  { 'failed' : { 'error' : string } };
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : http_request_result,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface UserProfile {
+  'username' : string,
+  'isPremium' : boolean,
+  'dailyQuota' : bigint,
+  'usedQuota' : bigint,
+  'photo' : ExternalBlob,
+  'rewardCredits' : bigint,
+}
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
+export interface VideoTemplate {
+  'id' : string,
+  'thumbnail' : ExternalBlob,
+  'preview' : ExternalBlob,
+  'name' : string,
+  'category' : string,
+}
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addAlternativePhoto' : ActorMethod<[ExternalBlob], undefined>,
+  'addGenerationToFavorites' : ActorMethod<
+    [string, ExternalBlob, ExternalBlob],
+    undefined
+  >,
+  'addRewardCredits' : ActorMethod<[Principal, bigint], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'createCheckoutSession' : ActorMethod<
+    [Array<ShoppingItem>, string, string],
+    string
+  >,
+  'createProfile' : ActorMethod<[string, ExternalBlob], undefined>,
+  'createVideoTemplate' : ActorMethod<
+    [string, string, string, ExternalBlob, ExternalBlob],
+    undefined
+  >,
+  'fetchGenerationHistory' : ActorMethod<
+    [Principal],
+    Array<GenerationHistoryEntry>
+  >,
+  'fetchUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'fetchVideoTemplate' : ActorMethod<[string], [] | [VideoTemplate]>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getDailyQuota' : ActorMethod<[Principal], bigint>,
+  'getGenerationHistory' : ActorMethod<
+    [Principal],
+    Array<GenerationHistoryEntry>
+  >,
+  'getStripeSessionStatus' : ActorMethod<[string], StripeSessionStatus>,
+  'getTemplates' : ActorMethod<[], Array<VideoTemplate>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'hasPremium' : ActorMethod<[Principal], boolean>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isStripeConfigured' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'setStripeConfiguration' : ActorMethod<[StripeConfiguration], undefined>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
+  'updateProfilePhoto' : ActorMethod<[ExternalBlob], undefined>,
+  'upgradeToPremium' : ActorMethod<[Principal], undefined>,
+}
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
 export declare const idlFactory: IDL.InterfaceFactory;

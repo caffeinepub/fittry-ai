@@ -1,24 +1,30 @@
 # FitTry AI
 
 ## Current State
-FitTry AI is a virtual try-on web app with pages: home, upload, outfit-selector, processing, result. It has a freemium model, e-commerce integration, and premium modal.
+Workspace currently has FaceVid AI. FitTry AI was the original project but was overwritten. Rebuilding from scratch.
 
 ## Requested Changes (Diff)
 
 ### Add
-- A new `SalesPage` accessible via a "Sell / Buy This App" link in the header
-- Sales page includes: hero with app name + tagline, key features list, screenshots/mockup section, pricing suggestion, contact/inquiry button (mailto link), and a clear CTA to view the live demo
+- Full FitTry AI virtual try-on app
+- Home screen with animated model (LIVE badge), hero section, Shop by Platform (Amazon, Myntra, Flipkart, Ajio)
+- Try On screen: upload photo or capture with camera, outfit selection, AI processing animation, result preview
+- Favorites page: saved/liked outfits grid
+- More/Profile page: app info, stats
+- Bottom navigation: Home, Try On, Favorites, More
+- All features completely free — no premium plan, no paywall, no generation limits
 
 ### Modify
-- `App.tsx`: add `sales` to AppState and render `SalesPage`
-- `Header.tsx`: add a "Buy This App" button/link that navigates to the sales page
-- `types.ts`: add `sales` to `AppState` union type
+- Replace FaceVid AI entirely with FitTry AI
 
 ### Remove
-- Nothing
+- All FaceVid AI code
+- All premium/paywall/monetization code — everything is 100% free
 
 ## Implementation Plan
-1. Add `sales` to `AppState` in `types.ts`
-2. Create `src/frontend/src/pages/SalesPage.tsx` with full sales landing page
-3. Update `App.tsx` to import and render `SalesPage`
-4. Update `Header.tsx` to add "Buy This App" nav link
+1. Generate Motoko backend with try-on history and favorites storage
+2. Build all screens: Home, TryOn, Favorites, More
+3. Add bottom navigation
+4. Add camera capture component
+5. Add AI processing animation
+6. No paywall or premium gating anywhere

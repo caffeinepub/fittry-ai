@@ -10,13 +10,13 @@ export default {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+      screens: { "2xl": "1400px" },
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ["Bricolage Grotesque", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: ["Plus Jakarta Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Plus Jakarta Sans", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -52,9 +52,11 @@ export default {
           DEFAULT: "oklch(var(--card))",
           foreground: "oklch(var(--card-foreground))",
         },
-        lavender: "oklch(var(--lavender))",
-        "pink-accent": "oklch(var(--pink))",
-        "green-accent": "oklch(var(--green-accent))",
+        "blue-accent": "oklch(var(--blue-primary) / <alpha-value>)",
+        "cyan-live": "oklch(var(--cyan-live) / <alpha-value>)",
+        surface: "oklch(var(--surface))",
+        "surface-raised": "oklch(var(--surface-raised))",
+        "surface-border": "oklch(var(--surface-border))",
         chart: {
           1: "oklch(var(--chart-1))",
           2: "oklch(var(--chart-2))",
@@ -83,10 +85,10 @@ export default {
         full: "9999px",
       },
       boxShadow: {
-        xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        glow: "0 0 30px oklch(0.76 0.1 295 / 0.3)",
-        "glow-pink": "0 0 30px oklch(0.82 0.08 5 / 0.3)",
-        float: "0 8px 32px rgba(0,0,0,0.3)",
+        "glow-blue": "0 0 30px oklch(0.60 0.18 265 / 0.4), 0 0 60px oklch(0.60 0.18 265 / 0.15)",
+        "glow-cyan": "0 0 20px oklch(0.82 0.13 210 / 0.6), 0 0 40px oklch(0.82 0.13 210 / 0.25)",
+        card: "0 2px 16px oklch(0 0 0 / 0.35)",
+        float: "0 8px 32px oklch(0 0 0 / 0.5), 0 2px 8px oklch(0 0 0 / 0.3)",
       },
       keyframes: {
         "accordion-down": {

@@ -1,38 +1,21 @@
-export type AppState =
-  | "home"
-  | "upload"
-  | "outfit-selector"
-  | "processing"
-  | "result"
-  | "sales";
+export type Platform = "Amazon" | "Myntra" | "Flipkart" | "Ajio";
 
 export interface Outfit {
   id: string;
   name: string;
-  category: string;
   brand: string;
+  platform: Platform;
   price: string;
-  image: string | null;
-  aiMatch?: number;
-  source?: "myntra" | "amazon" | "flipkart" | "ajio";
-  buyLink?: string;
+  image: string;
+  category: string;
+  tags: string[];
 }
 
-export interface FreemiumState {
-  triesUsed: number;
-  date: string;
-  isPremium: boolean;
+export interface TryOnResult {
+  outfitId: string;
+  userPhoto: string;
+  resultImage: string;
+  timestamp: number;
 }
 
-export type EcommPlatform = "amazon" | "myntra" | "flipkart" | "ajio";
-
-export interface ImportedProduct {
-  id: string;
-  url: string;
-  platform: EcommPlatform;
-  name: string;
-  price: string;
-  badge: string;
-  color: string;
-  importedAt: number;
-}
+export type Screen = "home" | "tryon" | "favorites" | "more";
