@@ -1,17 +1,39 @@
-import { BarChart3, Info, Shield, Sparkles, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  BarChart3,
+  ChevronRight,
+  Clapperboard,
+  Info,
+  LogOut,
+  Mail,
+  Phone,
+  Server,
+  Shield,
+  Sparkles,
+  Star,
+  User,
+} from "lucide-react";
 import { motion } from "motion/react";
+import { useLocalAuth } from "../hooks/useLocalAuth";
 
 const STAR_KEYS = ["s1", "s2", "s3", "s4", "s5"];
 
 interface MoreScreenProps {
   tryOnsCompleted: number;
   outfitsSaved: number;
+  onLogout: () => void;
+  onOpenServer: () => void;
+  onGenerateVideo: () => void;
 }
 
 export default function MoreScreen({
   tryOnsCompleted,
   outfitsSaved,
+  onLogout,
+  onOpenServer,
+  onGenerateVideo,
 }: MoreScreenProps) {
+  const { user } = useLocalAuth();
   const year = new Date().getFullYear();
 
   return (
@@ -33,10 +55,121 @@ export default function MoreScreen({
       </header>
 
       <div className="px-4 pt-6 space-y-5">
+        {/* Account */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl p-5"
+          style={{
+            background: "oklch(0.14 0.018 240)",
+            border: "1px solid oklch(0.22 0.022 240 / 0.5)",
+          }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <User size={16} className="text-primary" />
+            <h3 className="font-semibold">Account</h3>
+          </div>
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center gap-2">
+              <User size={13} className="text-muted-foreground flex-shrink-0" />
+              <p className="text-sm font-semibold">{user?.name}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail size={13} className="text-muted-foreground flex-shrink-0" />
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone
+                size={13}
+                className="text-muted-foreground flex-shrink-0"
+              />
+              <p className="text-sm text-muted-foreground">{user?.mobile}</p>
+            </div>
+          </div>
+          <Button
+            data-ocid="more.delete_button"
+            variant="outline"
+            size="sm"
+            onClick={onLogout}
+            className="flex items-center gap-1.5 rounded-xl border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+          >
+            <LogOut size={14} />
+            Logout
+          </Button>
+        </motion.div>
+
+        {/* Generate Video */}
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.04 }}
+          data-ocid="more.open_modal_button"
+          onClick={onGenerateVideo}
+          className="w-full rounded-2xl p-4 flex items-center gap-4 text-left hover:opacity-90 active:scale-[0.98] transition-all"
+          style={{
+            background: "oklch(0.14 0.018 240)",
+            border: "1px solid oklch(0.35 0.10 285 / 0.55)",
+          }}
+        >
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(0.22 0.08 285), oklch(0.28 0.10 310))",
+            }}
+          >
+            <Clapperboard size={20} style={{ color: "oklch(0.78 0.18 285)" }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold">Generate Video</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Turn any photo into a video with Runway AI
+            </p>
+          </div>
+          <ChevronRight
+            size={16}
+            className="text-muted-foreground flex-shrink-0"
+          />
+        </motion.button>
+
+        {/* Server Dashboard */}
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          data-ocid="more.secondary_button"
+          onClick={onOpenServer}
+          className="w-full rounded-2xl p-4 flex items-center gap-4 text-left hover:opacity-90 active:scale-[0.98] transition-all"
+          style={{
+            background: "oklch(0.14 0.018 240)",
+            border: "1px solid oklch(0.30 0.06 265 / 0.5)",
+          }}
+        >
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "oklch(0.18 0.05 265)" }}
+          >
+            <Server size={20} style={{ color: "oklch(0.75 0.18 265)" }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold">Server Dashboard</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Monitor your VPS servers
+            </p>
+          </div>
+          <ChevronRight
+            size={16}
+            className="text-muted-foreground flex-shrink-0"
+          />
+        </motion.button>
+
         {/* App Identity */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
           className="rounded-3xl p-6 text-center"
           style={{
             background:
@@ -140,7 +273,7 @@ export default function MoreScreen({
             },
             {
               title: "Completely Free",
-              desc: "Every feature, every outfit, every try-on \u2014 100% free, forever.",
+              desc: "Every feature, every outfit, every try-on — 100% free, forever.",
             },
           ].map((item) => (
             <div key={item.title} className="flex gap-3">
@@ -183,15 +316,7 @@ export default function MoreScreen({
           className="text-center pt-2 pb-4"
         >
           <p className="text-xs text-muted-foreground">
-            &#169; {year}. Built with &#10084;&#65039; using{" "}
-            <a
-              href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              caffeine.ai
-            </a>
+            &#169; {year}. Built with 🖤 ai agent
           </p>
         </motion.div>
       </div>

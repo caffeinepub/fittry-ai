@@ -1,10 +1,15 @@
 import { Toaster } from "@/components/ui/sonner";
 import { useState } from "react";
 import BottomNav from "./components/BottomNav";
+import { useLocalAuth } from "./hooks/useLocalAuth";
 import FavoritesScreen from "./pages/FavoritesScreen";
 import HomeScreen from "./pages/HomeScreen";
+import LoginScreen from "./pages/LoginScreen";
 import MoreScreen from "./pages/MoreScreen";
+import OutfitGallery from "./pages/OutfitGallery";
+import ServerScreen from "./pages/ServerScreen";
 import TryOnScreen from "./pages/TryOnScreen";
+import VideoGenScreen from "./pages/VideoGenScreen";
 import type { Outfit, Screen } from "./types";
 
 const FAVORITES_KEY = "fittriai_favorites";
@@ -27,10 +32,15 @@ function loadTryOns(): number {
 }
 
 export default function App() {
+  const { user, logout } = useLocalAuth();
   const [screen, setScreen] = useState<Screen>("home");
   const [favorites, setFavorites] = useState<string[]>(loadFavorites);
   const [tryOnsCompleted, setTryOnsCompleted] = useState<number>(loadTryOns);
   const [pendingOutfit, setPendingOutfit] = useState<Outfit | null>(null);
+
+  if (!user) {
+    return <LoginScreen />;
+  }
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
@@ -62,6 +72,8 @@ export default function App() {
     setScreen(s);
   };
 
+  const isSubScreen = screen === "server" || screen === "videogen";
+
   return (
     <div className="gradient-bg min-h-screen">
       <div className="max-w-md mx-auto relative">
@@ -74,6 +86,13 @@ export default function App() {
           />
         )}
         {screen === "tryon" && <TryOnScreen initialOutfit={pendingOutfit} />}
+        {screen === "gallery" && (
+          <OutfitGallery
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            onTryOn={handleTryOn}
+          />
+        )}
         {screen === "favorites" && (
           <FavoritesScreen
             favorites={favorites}
@@ -85,9 +104,20 @@ export default function App() {
           <MoreScreen
             tryOnsCompleted={tryOnsCompleted}
             outfitsSaved={favorites.length}
+            onLogout={logout}
+            onOpenServer={() => setScreen("server")}
+            onGenerateVideo={() => setScreen("videogen")}
           />
         )}
-        <BottomNav active={screen} onChange={handleScreenChange} />
+        {screen === "server" && (
+          <ServerScreen onBack={() => setScreen("more")} />
+        )}
+        {screen === "videogen" && (
+          <VideoGenScreen onBack={() => setScreen("more")} />
+        )}
+        {!isSubScreen && (
+          <BottomNav active={screen} onChange={handleScreenChange} />
+        )}
       </div>
       <Toaster />
     </div>

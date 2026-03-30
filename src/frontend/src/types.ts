@@ -1,4 +1,5 @@
 export type Platform = "Amazon" | "Myntra" | "Flipkart" | "Ajio";
+export type Gender = "Women" | "Men";
 
 export interface Outfit {
   id: string;
@@ -9,6 +10,7 @@ export interface Outfit {
   image: string;
   category: string;
   tags: string[];
+  gender: Gender;
 }
 
 export interface TryOnResult {
@@ -18,4 +20,11 @@ export interface TryOnResult {
   timestamp: number;
 }
 
-export type Screen = "home" | "tryon" | "favorites" | "more";
+export type Screen =
+  | "home"
+  | "tryon"
+  | "favorites"
+  | "gallery"
+  | "more"
+  | "server"
+  | "videogen";

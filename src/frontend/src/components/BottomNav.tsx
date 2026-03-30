@@ -1,4 +1,4 @@
-import { Heart, Home, MoreHorizontal, Scissors } from "lucide-react";
+import { Heart, Home, Images, MoreHorizontal, Scissors } from "lucide-react";
 import type { Screen } from "../types";
 
 interface BottomNavProps {
@@ -14,25 +14,31 @@ const navItems: {
 }[] = [
   {
     screen: "home",
-    icon: <Home size={22} />,
+    icon: <Home size={20} />,
     label: "Home",
     ocid: "nav.home.link",
   },
   {
     screen: "tryon",
-    icon: <Scissors size={22} />,
+    icon: <Scissors size={20} />,
     label: "Try On",
     ocid: "nav.tryon.link",
   },
   {
+    screen: "gallery",
+    icon: <Images size={20} />,
+    label: "Gallery",
+    ocid: "nav.gallery.link",
+  },
+  {
     screen: "favorites",
-    icon: <Heart size={22} />,
+    icon: <Heart size={20} />,
     label: "Favorites",
     ocid: "nav.favorites.link",
   },
   {
     screen: "more",
-    icon: <MoreHorizontal size={22} />,
+    icon: <MoreHorizontal size={20} />,
     label: "More",
     ocid: "nav.more.link",
   },
@@ -48,7 +54,7 @@ export default function BottomNav({ active, onChange }: BottomNavProps) {
         borderTop: "1px solid oklch(0.22 0.022 240 / 0.6)",
       }}
     >
-      <div className="flex items-center justify-around max-w-md mx-auto h-16 px-2">
+      <div className="flex items-center justify-around max-w-md mx-auto h-16 px-1">
         {navItems.map((item) => {
           const isActive = active === item.screen;
           return (
@@ -69,7 +75,9 @@ export default function BottomNav({ active, onChange }: BottomNavProps) {
                 {item.icon}
               </span>
               <span
-                className={`text-[10px] font-semibold tracking-wide ${isActive ? "opacity-100" : "opacity-70"}`}
+                className={`text-[9px] font-semibold tracking-wide ${
+                  isActive ? "opacity-100" : "opacity-70"
+                }`}
               >
                 {item.label}
               </span>
