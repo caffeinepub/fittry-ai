@@ -1,30 +1,32 @@
 # FitTry AI
 
 ## Current State
-Workspace currently has FaceVid AI. FitTry AI was the original project but was overwritten. Rebuilding from scratch.
+TryOnScreen has a simulated try-on flow: user uploads photo, selects outfit from gallery, a fake processing animation runs, then the outfit image is shown as the "result" — no real AI call is made.
+
+VideoGenScreen already has a real Replicate + Cloudinary backend integration with a collapsible settings panel (API key, cloud name, upload preset, custom backend URL).
 
 ## Requested Changes (Diff)
 
 ### Add
-- Full FitTry AI virtual try-on app
-- Home screen with animated model (LIVE badge), hero section, Shop by Platform (Amazon, Myntra, Flipkart, Ajio)
-- Try On screen: upload photo or capture with camera, outfit selection, AI processing animation, result preview
-- Favorites page: saved/liked outfits grid
-- More/Profile page: app info, stats
-- Bottom navigation: Home, Try On, Favorites, More
-- All features completely free — no premium plan, no paywall, no generation limits
+- Real `/tryon` API call in TryOnScreen using the provided backend code
+- Settings panel (collapsible) in TryOnScreen: backend URL, Replicate API key, Cloudinary cloud name, upload preset (persisted to localStorage, shared keys with VideoGenScreen storage)
+- Option to upload a custom cloth/garment image in addition to selecting from gallery
+- Real result image display (from API response `output` field)
+- Fallback to simulated mode if no backend URL is configured
 
 ### Modify
-- Replace FaceVid AI entirely with FitTry AI
+- `handleTryOn` — if backend URL is set, call `POST /tryon` with `person` + `cloth` multipart form, poll for result, show real output image
+- Result screen — show actual returned image URL when real API is used
+- Processing screen — show real status polling messages when in real API mode
 
 ### Remove
-- All FaceVid AI code
-- All premium/paywall/monetization code — everything is 100% free
+- Nothing removed
 
 ## Implementation Plan
-1. Generate Motoko backend with try-on history and favorites storage
-2. Build all screens: Home, TryOn, Favorites, More
-3. Add bottom navigation
-4. Add camera capture component
-5. Add AI processing animation
-6. No paywall or premium gating anywhere
+1. Add localStorage keys for Replicate/Cloudinary/backend URL (reuse VideoGenScreen keys)
+2. Add collapsible settings panel in TryOnScreen (above the Try On button in select step)
+3. Add cloth image upload option (alongside outfit selection)
+4. Update `handleTryOn` to detect backend mode and call real `/tryon` API
+5. Convert selected outfit image URL to a Blob for the `cloth` field if no custom cloth uploaded
+6. Poll backend or use Replicate direct polling for result
+7. Update result screen to show real output image if available
