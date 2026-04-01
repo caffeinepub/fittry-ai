@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-export type LocalUser = { name: string; email: string; mobile: string };
+export interface LocalUser {
+  name: string;
+  contact: string;
+  contactType: "email" | "mobile";
+}
 
 const STORAGE_KEY = "fittriai_user";
 

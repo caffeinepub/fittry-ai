@@ -13,7 +13,6 @@ import VideoGenScreen from "./pages/VideoGenScreen";
 import type { Outfit, Screen } from "./types";
 
 const FAVORITES_KEY = "fittriai_favorites";
-const TRYONS_KEY = "fittriai_tryons";
 
 function loadFavorites(): string[] {
   try {
@@ -23,19 +22,10 @@ function loadFavorites(): string[] {
   }
 }
 
-function loadTryOns(): number {
-  try {
-    return Number.parseInt(localStorage.getItem(TRYONS_KEY) || "0", 10);
-  } catch {
-    return 0;
-  }
-}
-
 export default function App() {
   const { user, logout } = useLocalAuth();
   const [screen, setScreen] = useState<Screen>("home");
   const [favorites, setFavorites] = useState<string[]>(loadFavorites);
-  const [tryOnsCompleted, setTryOnsCompleted] = useState<number>(loadTryOns);
   const [pendingOutfit, setPendingOutfit] = useState<Outfit | null>(null);
 
   if (!user) {
@@ -55,16 +45,6 @@ export default function App() {
   const handleTryOn = (outfit: Outfit) => {
     setPendingOutfit(outfit);
     setScreen("tryon");
-    setTryOnsCompleted((n) => {
-      const next = n + 1;
-      localStorage.setItem(TRYONS_KEY, String(next));
-      return next;
-    });
-  };
-
-  const handleNavigateTryOn = () => {
-    setPendingOutfit(null);
-    setScreen("tryon");
   };
 
   const handleScreenChange = (s: Screen) => {
@@ -76,16 +56,20 @@ export default function App() {
 
   return (
     <div className="gradient-bg min-h-screen">
-      <div className="max-w-md mx-auto relative">
+      <div className="max-w-[430px] mx-auto relative min-h-screen">
         {screen === "home" && (
           <HomeScreen
-            onTryOn={handleTryOn}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
-            onNavigateTryOn={handleNavigateTryOn}
+            onTryOn={() => handleScreenChange("tryon")}
+            onGallery={() => handleScreenChange("gallery")}
           />
         )}
-        {screen === "tryon" && <TryOnScreen initialOutfit={pendingOutfit} />}
+        {screen === "tryon" && (
+          <TryOnScreen
+            initialOutfit={pendingOutfit}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+          />
+        )}
         {screen === "gallery" && (
           <OutfitGallery
             favorites={favorites}
@@ -102,8 +86,6 @@ export default function App() {
         )}
         {screen === "more" && (
           <MoreScreen
-            tryOnsCompleted={tryOnsCompleted}
-            outfitsSaved={favorites.length}
             onLogout={logout}
             onOpenServer={() => setScreen("server")}
             onGenerateVideo={() => setScreen("videogen")}

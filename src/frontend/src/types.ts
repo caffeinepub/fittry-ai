@@ -1,23 +1,23 @@
 export type Platform = "Amazon" | "Myntra" | "Flipkart" | "Ajio";
 export type Gender = "Women" | "Men";
+export type Category =
+  | "All"
+  | "Casual"
+  | "Formal"
+  | "Traditional"
+  | "Western"
+  | "Sports"
+  | "Party";
 
 export interface Outfit {
   id: string;
   name: string;
   brand: string;
-  platform: Platform;
   price: string;
-  image: string;
-  category: string;
-  tags: string[];
+  category: Category;
   gender: Gender;
-}
-
-export interface TryOnResult {
-  outfitId: string;
-  userPhoto: string;
-  resultImage: string;
-  timestamp: number;
+  emoji: string;
+  color: string;
 }
 
 export type Screen =

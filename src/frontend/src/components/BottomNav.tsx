@@ -1,88 +1,49 @@
-import { Heart, Home, Images, MoreHorizontal, Scissors } from "lucide-react";
+import { Grid3X3, Heart, Home, Menu, ShoppingBag } from "lucide-react";
 import type { Screen } from "../types";
 
-interface BottomNavProps {
+interface Props {
   active: Screen;
   onChange: (screen: Screen) => void;
 }
 
-const navItems: {
-  screen: Screen;
-  icon: React.ReactNode;
+interface NavItem {
+  id: Screen;
   label: string;
-  ocid: string;
-}[] = [
-  {
-    screen: "home",
-    icon: <Home size={20} />,
-    label: "Home",
-    ocid: "nav.home.link",
-  },
-  {
-    screen: "tryon",
-    icon: <Scissors size={20} />,
-    label: "Try On",
-    ocid: "nav.tryon.link",
-  },
-  {
-    screen: "gallery",
-    icon: <Images size={20} />,
-    label: "Gallery",
-    ocid: "nav.gallery.link",
-  },
-  {
-    screen: "favorites",
-    icon: <Heart size={20} />,
-    label: "Favorites",
-    ocid: "nav.favorites.link",
-  },
-  {
-    screen: "more",
-    icon: <MoreHorizontal size={20} />,
-    label: "More",
-    ocid: "nav.more.link",
-  },
+  icon: React.ElementType;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: "home", label: "Home", icon: Home },
+  { id: "tryon", label: "Try On", icon: ShoppingBag },
+  { id: "gallery", label: "Gallery", icon: Grid3X3 },
+  { id: "favorites", label: "Saved", icon: Heart },
+  { id: "more", label: "More", icon: Menu },
 ];
 
-export default function BottomNav({ active, onChange }: BottomNavProps) {
+export default function BottomNav({ active, onChange }: Props) {
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50"
-      style={{
-        background: "oklch(0.12 0.016 240 / 0.95)",
-        backdropFilter: "blur(20px)",
-        borderTop: "1px solid oklch(0.22 0.022 240 / 0.6)",
-      }}
-    >
-      <div className="flex items-center justify-around max-w-md mx-auto h-16 px-1">
-        {navItems.map((item) => {
-          const isActive = active === item.screen;
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/60 z-40">
+      <div className="flex items-stretch h-16">
+        {NAV_ITEMS.map((item) => {
+          const isActive = active === item.id;
           return (
             <button
+              key={item.id}
               type="button"
-              key={item.screen}
-              data-ocid={item.ocid}
-              onClick={() => onChange(item.screen)}
-              className={`flex flex-col items-center gap-0.5 flex-1 py-2 rounded-xl transition-all duration-200 ${
+              onClick={() => onChange(item.id)}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all relative ${
                 isActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-violet-400"
+                  : "text-slate-500 hover:text-slate-300"
               }`}
+              data-ocid={`nav.${item.id}.link`}
             >
-              <span
-                className={`transition-all duration-200 ${isActive ? "scale-110" : "scale-100"}`}
-              >
-                {item.icon}
-              </span>
-              <span
-                className={`text-[9px] font-semibold tracking-wide ${
-                  isActive ? "opacity-100" : "opacity-70"
-                }`}
-              >
-                {item.label}
-              </span>
+              <item.icon
+                className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`}
+              />
+              <span className="text-[10px] font-semibold">{item.label}</span>
               {isActive && (
-                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
+                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-violet-400" />
               )}
             </button>
           );

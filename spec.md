@@ -1,32 +1,32 @@
 # FitTry AI
 
 ## Current State
-TryOnScreen has a simulated try-on flow: user uploads photo, selects outfit from gallery, a fake processing animation runs, then the outfit image is shown as the "result" — no real AI call is made.
-
-VideoGenScreen already has a real Replicate + Cloudinary backend integration with a collapsible settings panel (API key, cloud name, upload preset, custom backend URL).
+FitTry AI Version 24 exists in the workspace with login, outfit gallery, try-on screen, favorites, video generation (Replicate + Cloudinary), VisionVideo AI demo, Server Dashboard, and More tab. The app is fully free with no premium plan.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Real `/tryon` API call in TryOnScreen using the provided backend code
-- Settings panel (collapsible) in TryOnScreen: backend URL, Replicate API key, Cloudinary cloud name, upload preset (persisted to localStorage, shared keys with VideoGenScreen storage)
-- Option to upload a custom cloth/garment image in addition to selecting from gallery
-- Real result image display (from API response `output` field)
-- Fallback to simulated mode if no backend URL is configured
+- Nothing new — full clean rebuild preserving all existing features
 
 ### Modify
-- `handleTryOn` — if backend URL is set, call `POST /tryon` with `person` + `cloth` multipart form, poll for result, show real output image
-- Result screen — show actual returned image URL when real API is used
-- Processing screen — show real status polling messages when in real API mode
+- Rebuild entire frontend from scratch for a cleaner, more polished codebase
+- Ensure all features are working and well-integrated
 
 ### Remove
-- Nothing removed
+- Any broken or incomplete code
 
 ## Implementation Plan
-1. Add localStorage keys for Replicate/Cloudinary/backend URL (reuse VideoGenScreen keys)
-2. Add collapsible settings panel in TryOnScreen (above the Try On button in select step)
-3. Add cloth image upload option (alongside outfit selection)
-4. Update `handleTryOn` to detect backend mode and call real `/tryon` API
-5. Convert selected outfit image URL to a Blob for the `cloth` field if no custom cloth uploaded
-6. Poll backend or use Replicate direct polling for result
-7. Update result screen to show real output image if available
+
+Rebuild FitTry AI with these features:
+
+1. **Login Screen** — Email/Mobile toggle, OTP verification (DLT-style, OTP shown on screen), name field on signup
+2. **Home Screen** — Hero section with animated model + LIVE badge, quick action buttons to Try On and Gallery, platform badges (Amazon, Myntra, Flipkart, Ajio)
+3. **Try On Screen** — Upload user photo, browse outfit grid, tap outfit to "try on" (simulated overlay), AI Settings panel (Replicate key, Cloudinary cloud name + upload preset, backend URL) for real /tryon API calls
+4. **Outfit Gallery** — 120 outfits (60 men, 60 women), gender/category filters, search, tap to preview dress image before trying on
+5. **Favorites Screen** — Saved/liked outfits grid
+6. **More Screen** — User profile, logout, link to Server Dashboard, link to Generate Video screen, footer "built with 🖤 ai agent"
+7. **Server Dashboard Screen** — Live animated stats (CPU, RAM, Disk, Network, updates every 2s), 3 demo servers with Start/Stop/Restart buttons, terminal log with scrolling messages
+8. **Video Gen Screen (VisionVideo AI)** — Upload photo, select outfit card (Shirt, Jacket, Dress, Saree, etc.), collapsible API settings (Replicate key, Cloudinary cloud name + upload preset, custom backend URL), Generate Video button, status messages (Uploading, Processing, Video Ready), video player
+9. **Bottom Navigation** — Home, Try On, Gallery, Favorites, More
+10. **Fully Free** — No premium plan, no paywall triggers
+11. **Dark theme** — Mobile-optimized, modern look

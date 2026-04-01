@@ -1,497 +1,232 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Activity,
-  ArrowLeft,
-  Cpu,
-  HardDrive,
-  MemoryStick,
-  Network,
-  Play,
-  RefreshCw,
-  Server,
-  Square,
-} from "lucide-react";
+import { Activity, ArrowLeft, Cpu, HardDrive, Wifi } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
-interface ServerScreenProps {
+interface Props {
   onBack: () => void;
 }
 
-interface ServerEntry {
-  id: string;
+interface ServerInfo {
   name: string;
-  ip: string;
-  status: "running" | "stopped";
-  uptime: string;
+  status: "online" | "offline";
 }
 
-interface Stats {
-  cpu: number;
-  ram: number;
-  disk: number;
-  netUp: number;
-  netDown: number;
-}
-
-const INITIAL_SERVERS: ServerEntry[] = [
-  {
-    id: "vps-01",
-    name: "VPS-01",
-    ip: "192.168.1.10",
-    status: "running",
-    uptime: "99.9%",
-  },
-  {
-    id: "vps-02",
-    name: "VPS-02",
-    ip: "192.168.1.11",
-    status: "running",
-    uptime: "98.5%",
-  },
-  {
-    id: "vps-03",
-    name: "VPS-03",
-    ip: "192.168.1.12",
-    status: "stopped",
-    uptime: "\u2014",
-  },
+const INITIAL_SERVERS: ServerInfo[] = [
+  { name: "Server 1 (Mumbai)", status: "online" },
+  { name: "Server 2 (Singapore)", status: "online" },
+  { name: "Server 3 (Frankfurt)", status: "offline" },
 ];
 
-function randomBetween(min: number, max: number) {
-  return Math.round(min + Math.random() * (max - min));
+const LOG_MESSAGES = [
+  "[OK] Health check passed",
+  "[OK] Server started successfully",
+  "[INFO] New connection established",
+  "[WARN] Memory usage above 70%",
+  "[OK] Cache cleared",
+  "[INFO] Backup completed",
+  "[OK] SSL certificate valid",
+  "[INFO] Load balancer active",
+  "[OK] Database connected",
+  "[INFO] CDN sync complete",
+];
+
+interface StatBarProps {
+  label: string;
+  value: number;
+  icon: React.ElementType;
+  color: string;
+  isNetwork?: boolean;
 }
 
-function formatTime(d: Date) {
-  return d.toISOString().replace("T", " ").slice(0, 19);
-}
-
-function CircleRing({
-  value,
-  color,
-  size = 56,
-}: { value: number; color: string; size?: number }) {
-  const r = (size - 8) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (value / 100) * circ;
+function StatBar({ label, value, icon: Icon, color, isNetwork }: StatBarProps) {
   return (
-    <svg
-      width={size}
-      height={size}
-      className="-rotate-90"
-      aria-hidden="true"
-      role="img"
-    >
-      <title>Usage ring</title>
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="oklch(0.22 0.022 240 / 0.4)"
-        strokeWidth={6}
-      />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke={color}
-        strokeWidth={6}
-        strokeDasharray={circ}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        style={{ transition: "stroke-dashoffset 0.8s ease" }}
-      />
-    </svg>
+    <div className="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Icon className={`w-4 h-4 ${color}`} />
+          <span className="text-slate-300 text-sm">{label}</span>
+        </div>
+        <span className={`font-bold text-sm ${color}`}>
+          {isNetwork ? `${value} KB/s` : `${value}%`}
+        </span>
+      </div>
+      {!isNetwork && (
+        <div className="h-2 bg-slate-700/60 rounded-full overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full ${value > 80 ? "bg-red-500" : value > 60 ? "bg-yellow-500" : "bg-green-500"}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${value}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
-export default function ServerScreen({ onBack }: ServerScreenProps) {
-  const [stats, setStats] = useState<Stats>({
-    cpu: 47,
-    ram: 77,
-    disk: 45,
-    netUp: 12,
-    netDown: 34,
+export default function ServerScreen({ onBack }: Props) {
+  const [stats, setStats] = useState({
+    cpu: 42,
+    ram: 68,
+    disk: 55,
+    network: 124,
   });
-  const [servers, setServers] = useState<ServerEntry[]>(INITIAL_SERVERS);
-  const [logs, setLogs] = useState<string[]>(() => [
-    `[${formatTime(new Date())}] System startup complete`,
-    `[${formatTime(new Date())}] All services initialized`,
-    `[${formatTime(new Date())}] Health check: OK`,
-  ]);
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const [servers, setServers] = useState<ServerInfo[]>(INITIAL_SERVERS);
+  const [logs, setLogs] = useState<string[]>(LOG_MESSAGES.slice(0, 5));
+  const logRef = useRef<HTMLDivElement>(null);
 
-  // Animate stats
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on log update
   useEffect(() => {
-    const t = setInterval(() => {
+    const interval = setInterval(() => {
       setStats({
-        cpu: randomBetween(35, 75),
-        ram: randomBetween(60, 85),
-        disk: 45,
-        netUp: randomBetween(5, 30),
-        netDown: randomBetween(20, 80),
+        cpu: Math.floor(25 + Math.random() * 60),
+        ram: Math.floor(50 + Math.random() * 40),
+        disk: Math.floor(40 + Math.random() * 40),
+        network: Math.floor(50 + Math.random() * 300),
       });
+      const msg = LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)];
+      const time = new Date().toLocaleTimeString();
+      setLogs((prev) => [
+        `[${time}] ${msg.replace(/^\[\w+\] /, "")}`,
+        ...prev.slice(0, 19),
+      ]);
     }, 2000);
-    return () => clearInterval(t);
+    return () => clearInterval(interval);
   }, []);
 
-  // Terminal logs
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on log update
-  useEffect(() => {
-    const t = setInterval(() => {
-      const now = formatTime(new Date());
-      const entries = [
-        `[${now}] System health check: OK`,
-        `[${now}] CPU load: ${randomBetween(35, 75)}%`,
-        `[${now}] Memory usage: ${(randomBetween(48, 68) / 10).toFixed(1)}GB/8GB`,
-        `[${now}] Network I/O: \u2191${randomBetween(5, 30)} MB/s  \u2193${randomBetween(20, 80)} MB/s`,
-        `[${now}] Disk I/O: read ${randomBetween(10, 80)} MB/s`,
-        `[${now}] Firewall: all rules active`,
-        `[${now}] SSL certificates: valid`,
-      ];
-      const entry = entries[Math.floor(Math.random() * entries.length)];
-      setLogs((prev) => [...prev.slice(-49), entry]);
-    }, 3000);
-    return () => clearInterval(t);
-  }, []);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on log update
-  useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [logs]);
-
-  const handleServerAction = (
-    id: string,
-    action: "start" | "stop" | "restart",
-  ) => {
-    if (action === "restart") {
-      toast.success(`${id.toUpperCase()}: Restarting...`, { duration: 2500 });
-      return;
-    }
+  const toggleServer = (idx: number) => {
     setServers((prev) =>
-      prev.map((s) =>
-        s.id === id
-          ? {
-              ...s,
-              status: action === "start" ? "running" : "stopped",
-              uptime: action === "start" ? "100%" : "\u2014",
-            }
+      prev.map((s, i) =>
+        i === idx
+          ? { ...s, status: s.status === "online" ? "offline" : "online" }
           : s,
       ),
     );
-    toast.success(
-      `${id.toUpperCase()}: ${action === "start" ? "Started successfully" : "Stopped"}`,
-      { duration: 2000 },
-    );
   };
 
-  const statCards = [
-    {
-      label: "CPU Usage",
-      value: stats.cpu,
-      display: `${stats.cpu}%`,
-      icon: <Cpu size={14} />,
-      color: "oklch(0.65 0.18 265)",
-    },
-    {
-      label: "RAM Usage",
-      value: stats.ram,
-      display: `${((stats.ram / 100) * 8).toFixed(1)} GB`,
-      icon: <MemoryStick size={14} />,
-      color: "oklch(0.70 0.18 200)",
-    },
-    {
-      label: "Disk",
-      value: stats.disk,
-      display: "45 GB",
-      icon: <HardDrive size={14} />,
-      color: "oklch(0.72 0.18 75)",
-    },
-    {
-      label: "Network",
-      value: Math.min(100, Math.round(stats.netDown * 1.2)),
-      display: `\u2191${stats.netUp} \u2193${stats.netDown}`,
-      icon: <Network size={14} />,
-      color: "oklch(0.68 0.18 150)",
-    },
-  ];
-
   return (
-    <div
-      className="min-h-screen pb-8"
-      style={{ background: "oklch(0.08 0.015 240)" }}
-    >
-      {/* Header */}
-      <header
-        className="sticky top-0 z-40 px-4 py-3 flex items-center gap-3"
-        style={{
-          background: "oklch(0.10 0.015 240 / 0.95)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid oklch(0.22 0.022 240 / 0.4)",
-        }}
-      >
+    <div className="pb-10 min-h-screen">
+      <div className="pt-12 px-5 pb-5 flex items-center gap-3">
         <button
           type="button"
-          data-ocid="server.cancel_button"
           onClick={onBack}
-          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors"
+          className="w-9 h-9 rounded-xl bg-slate-800/60 flex items-center justify-center"
+          data-ocid="server.button"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft className="w-5 h-5 text-white" />
         </button>
-        <div className="flex items-center gap-2 flex-1">
-          <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: "oklch(0.18 0.05 265)" }}
-          >
-            <Server size={16} style={{ color: "oklch(0.75 0.18 265)" }} />
-          </div>
-          <span className="font-display font-bold text-lg">
-            Server Dashboard
-          </span>
+        <div>
+          <h1 className="text-xl font-bold font-display text-white">
+            VPS Server Dashboard
+          </h1>
+          <p className="text-slate-400 text-xs">Live monitoring</p>
         </div>
-        <div
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-          style={{ background: "oklch(0.14 0.04 150)" }}
-        >
-          <span
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{ background: "oklch(0.72 0.18 150)" }}
-          />
-          <span
-            className="text-xs font-semibold"
-            style={{ color: "oklch(0.72 0.18 150)" }}
-          >
-            LIVE
-          </span>
+        <div className="ml-auto flex items-center gap-1.5 bg-green-500/10 border border-green-500/30 rounded-full px-3 py-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          <span className="text-green-400 text-xs font-bold">LIVE</span>
         </div>
-      </header>
+      </div>
 
-      <div className="px-4 pt-5 space-y-5">
-        {/* Stats Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 gap-3"
-        >
-          {statCards.map((card, i) => (
-            <motion.div
-              key={card.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
-              data-ocid="server.card"
-              className="rounded-2xl p-4 flex flex-col gap-3"
-              style={{
-                background: "oklch(0.13 0.018 240)",
-                border: "1px solid oklch(0.22 0.022 240 / 0.5)",
-              }}
+      {/* Stats */}
+      <div className="px-5 mb-5 grid grid-cols-2 gap-3">
+        <StatBar
+          label="CPU"
+          value={stats.cpu}
+          icon={Cpu}
+          color="text-cyan-400"
+        />
+        <StatBar
+          label="RAM"
+          value={stats.ram}
+          icon={Activity}
+          color="text-violet-400"
+        />
+        <StatBar
+          label="Disk"
+          value={stats.disk}
+          icon={HardDrive}
+          color="text-orange-400"
+        />
+        <StatBar
+          label="Network"
+          value={stats.network}
+          icon={Wifi}
+          color="text-green-400"
+          isNetwork
+        />
+      </div>
+
+      {/* Servers */}
+      <div className="px-5 mb-5">
+        <h3 className="text-white font-semibold mb-3">Servers</h3>
+        <div className="space-y-3">
+          {servers.map((s, i) => (
+            <div
+              key={s.name}
+              className="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-4 flex items-center gap-3"
+              data-ocid={`server.item.${i + 1}`}
             >
-              <div className="flex items-center justify-between">
-                <div
-                  className="flex items-center gap-1.5 text-xs font-medium"
-                  style={{ color: card.color }}
-                >
-                  {card.icon}
-                  {card.label}
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <CircleRing value={card.value} color={card.color} size={52} />
-                <div>
-                  <p
-                    className="text-lg font-bold font-mono leading-none"
-                    style={{ color: card.color }}
-                  >
-                    {card.display}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {card.value}%
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Server List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl overflow-hidden"
-          style={{
-            background: "oklch(0.13 0.018 240)",
-            border: "1px solid oklch(0.22 0.022 240 / 0.5)",
-          }}
-        >
-          <div
-            className="px-4 py-3 flex items-center gap-2"
-            style={{ borderBottom: "1px solid oklch(0.22 0.022 240 / 0.4)" }}
-          >
-            <Activity size={15} style={{ color: "oklch(0.65 0.18 265)" }} />
-            <h3 className="font-semibold text-sm">Active Servers</h3>
-            <Badge variant="secondary" className="ml-auto text-xs">
-              {servers.filter((s) => s.status === "running").length} /{" "}
-              {servers.length} Online
-            </Badge>
-          </div>
-          <div
-            className="divide-y"
-            style={{ borderColor: "oklch(0.22 0.022 240 / 0.3)" }}
-          >
-            {servers.map((server, i) => (
-              <motion.div
-                key={server.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 + i * 0.05 }}
-                data-ocid={`server.item.${i + 1}`}
-                className="px-4 py-3 flex items-center gap-3"
-              >
-                <div
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{
-                    background:
-                      server.status === "running"
-                        ? "oklch(0.72 0.18 150)"
-                        : "oklch(0.6 0.18 25)",
-                    boxShadow:
-                      server.status === "running"
-                        ? "0 0 6px oklch(0.72 0.18 150 / 0.6)"
-                        : "none",
-                  }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">{server.name}</p>
-                    <span
-                      className="text-xs px-1.5 py-0.5 rounded-md font-medium"
-                      style={{
-                        background:
-                          server.status === "running"
-                            ? "oklch(0.18 0.06 150)"
-                            : "oklch(0.18 0.06 25)",
-                        color:
-                          server.status === "running"
-                            ? "oklch(0.72 0.18 150)"
-                            : "oklch(0.65 0.18 25)",
-                      }}
-                    >
-                      {server.status === "running" ? "Running" : "Stopped"}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {server.ip} &middot; Uptime: {server.uptime}
-                  </p>
-                </div>
-                <div className="flex gap-1.5 flex-shrink-0">
-                  {server.status === "stopped" ? (
-                    <Button
-                      size="sm"
-                      data-ocid={`server.secondary_button.${i + 1}`}
-                      onClick={() => handleServerAction(server.id, "start")}
-                      className="h-7 px-2.5 text-xs rounded-lg"
-                      style={{
-                        background: "oklch(0.18 0.06 150)",
-                        color: "oklch(0.72 0.18 150)",
-                      }}
-                    >
-                      <Play size={11} className="mr-1" />
-                      Start
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        size="sm"
-                        data-ocid={`server.secondary_button.${i + 1}`}
-                        onClick={() => handleServerAction(server.id, "restart")}
-                        className="h-7 px-2.5 text-xs rounded-lg"
-                        style={{
-                          background: "oklch(0.17 0.04 240)",
-                          color: "oklch(0.65 0.15 240)",
-                        }}
-                      >
-                        <RefreshCw size={11} className="mr-1" />
-                        Restart
-                      </Button>
-                      <Button
-                        size="sm"
-                        data-ocid={`server.delete_button.${i + 1}`}
-                        onClick={() => handleServerAction(server.id, "stop")}
-                        className="h-7 px-2.5 text-xs rounded-lg"
-                        style={{
-                          background: "oklch(0.18 0.06 25)",
-                          color: "oklch(0.65 0.18 25)",
-                        }}
-                      >
-                        <Square size={11} className="mr-1" />
-                        Stop
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Terminal Logs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-2xl overflow-hidden"
-          style={{
-            background: "oklch(0.07 0.012 240)",
-            border: "1px solid oklch(0.22 0.022 240 / 0.5)",
-          }}
-        >
-          <div
-            className="px-4 py-2.5 flex items-center gap-2"
-            style={{
-              background: "oklch(0.11 0.015 240)",
-              borderBottom: "1px solid oklch(0.22 0.022 240 / 0.4)",
-            }}
-          >
-            <div className="flex gap-1.5">
-              <span
-                className="w-3 h-3 rounded-full"
-                style={{ background: "oklch(0.6 0.18 25)" }}
+              <div
+                className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                  s.status === "online" ? "bg-green-400" : "bg-red-400"
+                }`}
               />
-              <span
-                className="w-3 h-3 rounded-full"
-                style={{ background: "oklch(0.72 0.18 75)" }}
-              />
-              <span
-                className="w-3 h-3 rounded-full"
-                style={{ background: "oklch(0.72 0.18 150)" }}
-              />
-            </div>
-            <span className="text-xs text-muted-foreground ml-1 font-mono">
-              Terminal Log
-            </span>
-          </div>
-          <ScrollArea className="h-52">
-            <div className="p-4 space-y-1" data-ocid="server.panel">
-              {logs.map((log) => (
+              <div className="flex-1">
+                <p className="text-white text-sm font-medium">{s.name}</p>
                 <p
-                  key={log}
-                  className="text-xs font-mono"
-                  style={{ color: "oklch(0.65 0.06 150)" }}
+                  className={`text-xs capitalize ${s.status === "online" ? "text-green-400" : "text-red-400"}`}
                 >
-                  {log}
+                  {s.status}
                 </p>
-              ))}
-              <div ref={logsEndRef} />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleServer(i)}
+                  className={`text-xs px-2.5 py-1.5 rounded-lg font-semibold transition-all ${
+                    s.status === "online"
+                      ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                      : "bg-green-500/20 text-green-400 border border-green-500/30"
+                  }`}
+                  data-ocid="server.toggle"
+                >
+                  {s.status === "online" ? "Stop" : "Start"}
+                </button>
+                <button
+                  type="button"
+                  className="text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-slate-700/60 text-slate-300 border border-slate-600/40"
+                  data-ocid="server.button"
+                >
+                  Restart
+                </button>
+              </div>
             </div>
-          </ScrollArea>
-        </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Terminal */}
+      <div className="px-5">
+        <h3 className="text-white font-semibold mb-3">Terminal Log</h3>
+        <div
+          ref={logRef}
+          className="bg-black/60 border border-slate-700/40 rounded-2xl p-4 h-48 overflow-y-auto font-mono text-xs space-y-1"
+        >
+          {logs.map((log, i) => (
+            <p
+              // biome-ignore lint/suspicious/noArrayIndexKey: log list is prepend-only
+              key={i}
+              className={
+                log.includes("OK")
+                  ? "text-green-400"
+                  : log.includes("WARN")
+                    ? "text-yellow-400"
+                    : "text-slate-400"
+              }
+            >
+              {log}
+            </p>
+          ))}
+        </div>
       </div>
     </div>
   );
